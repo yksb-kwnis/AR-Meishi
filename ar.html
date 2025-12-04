@@ -4,28 +4,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>var vConsole = new VConsole();</script>
 
     <script>
-        // ① 近づきすぎたら非表示にする
+        // ① 近づきすぎたら非表示にする（修正版）
         AFRAME.registerComponent('proximity-hider', {
             schema: {
-                distance: {default: 0.03} // 0.3メートル（30cm）
+                distance: {default: 0.3} // 0.3m以内で消える
             },
             tick: function () {
-                if (!this.el.object3D.visible && !this.el.parentEl.object3D.visible) return;
-                const distance = this.el.object3D.position.length();
-                // 親（マーカー）が見えている時だけ判定
-                if (this.el.parentEl.object3D.visible) {
-                    this.el.object3D.visible = distance > this.data.distance;
-                }
+                // 親（マーカー）が見えていない時は処理しない
+                if (!this.el.parentEl.object3D.visible) return;
+
+                // ★修正点：ローカル座標ではなく「ワールド座標（カメラからの絶対距離）」を取得
+                var worldPosition = new THREE.Vector3();
+                this.el.object3D.getWorldPosition(worldPosition);
+                const distance = worldPosition.length();
+
+                // ★デバッグログ：現在の距離をコンソールに出し続ける
+                // （動作確認できたら console.log は消してください）
+                console.log("Distance:", distance.toFixed(2));
+
+                // 判定して表示/非表示を切り替え
+                this.el.object3D.visible = distance > this.data.distance;
             }
         });
 
-        // ② ピンチ操作で拡大縮小（基準サイズ 0.001 に合わせた設定）
+        // ② ピンチ操作で拡大縮小
         AFRAME.registerComponent('pinch-scaler', {
             schema: {
-                min: {default: 0.0005}, // 最小：今の半分のサイズ
-                max: {default: 0.005}   // 最大：今の5倍のサイズ
+                min: {default: 0.0005}, 
+                max: {default: 0.005}
             },
             init: function () {
                 this.startDistance = 0;
@@ -50,6 +61,9 @@
                     if (newScale > this.data.max) newScale = this.data.max;
 
                     this.el.object3D.scale.set(newScale, newScale, newScale);
+                    
+                    // ★デバッグログ：現在のスケールを表示
+                    console.log("Scale:", newScale);
                 }
             },
             getDistance: function (touch1, touch2) {
@@ -80,12 +94,10 @@
                 rotation="90 0 0" 
                 position="0 0 0" 
                 scale="0.001 0.001 0.001"
-                proximity-hider="distance: 0.03"
+                proximity-hider="distance: 0.3"
                 pinch-scaler="min: 0.0005; max: 0.005"
             ></a-entity>
         </a-entity>
     </a-scene>
 </body>
 </html>
-
-
