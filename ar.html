@@ -4,18 +4,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
-    <script>
-        // ここでエラーが出てもvConsoleだけは起動させる
-        try {
-            var vConsole = new VConsole();
-            console.log("vConsole起動成功");
-        } catch(e) {
-            alert("vConsoleの起動に失敗しました");
-        }
-    </script>
+    <script>var vConsole = new VConsole();</script>
 
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <script>
+        // ① 近づきすぎたら非表示にする機能
+        AFRAME.registerComponent('proximity-hider', {
+            schema: {
+                distance: {default: 0.1} // ★修正：0.1 (10cm) 以内で非表示にする（以前は0.3で遠すぎた）
+            },
+            tick: function () {
+                if (!this.el.parentEl.object3D.visible) return;
+
+                // ワールド座標（カメラからの絶対距離）を取得して計算
+                var worldPosition = new THREE.Vector3();
+                this.el.object3D.getWorldPosition(worldPosition);
+                const distance = worldPosition.length();
+
+                // ★デバッグ用：距離をログに出す（緑ボタンのLogで見れます）
+                console.log("Distance:", distance.toFixed(2));
+
+                // 判定
+                this.el.object3D.visible = distance > this.data.distance;
+            }
+        });
+
+        // ② ピンチ操作で拡大縮小する機能
+        AFRAME.registerComponent('pinch-scaler', {
+            schema: {
+                min: {default: 0.0005}, // 最小サイズ
+                max: {default: 0.005}   // 最大サイズ
+            },
+            init: function () {
+                this.startDistance = 0;
+                this.initialScale = {x: 1, y: 1, z: 1};
+                this.sceneEl = this.el.sceneEl;
+                this.sceneEl.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
+                this.sceneEl.canvas.addEventListener('touchmove', this.onTouchMove.bind(this));
+            },
+            onTouchStart: function (e) {
+                if (e.touches.length === 2) {
+                    this.startDistance = this.getDistance(e.touches[0], e.touches[1]);
+                    this.initialScale = {...this.el.object3D.scale};
+                }
+            },
+            onTouchMove: function (e) {
+                if (e.touches.length === 2 && this.startDistance > 0) {
+                    const currentDistance = this.getDistance(e.touches[0], e.touches[1]);
+                    const scaleFactor = currentDistance / this.startDistance;
+                    let newScale = this.initialScale.x * scaleFactor;
+
+                    if (newScale < this.data.min) newScale = this.data.min;
+                    if (newScale > this.data.max) newScale = this.data.max;
+
+                    this.el.object3D.scale.set(newScale, newScale, newScale);
+                    console.log("Scale:", newScale);
+                }
+            },
+            getDistance: function (touch1, touch2) {
+                const dx = touch1.pageX - touch2.pageX;
+                const dy = touch1.pageY - touch2.pageY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+        });
+    </script>
 </head>
 <body>
     <a-scene 
@@ -32,12 +86,16 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
+            
             <a-entity 
                 gltf-model="#avatarModel" 
                 rotation="90 0 0" 
                 position="0 0 0" 
                 scale="0.001 0.001 0.001"
+                proximity-hider="distance: 0.1"
+                pinch-scaler="min: 0.0005; max: 0.005"
             ></a-entity>
+
         </a-entity>
     </a-scene>
 </body>
