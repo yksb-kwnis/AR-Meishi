@@ -9,7 +9,7 @@
         // ① 近づきすぎたら非表示にする
         AFRAME.registerComponent('proximity-hider', {
             schema: {
-                distance: {default: 0.3} // 0.3メートル（30cm）
+                distance: {default: 0.03} // 0.3メートル（30cm）
             },
             tick: function () {
                 if (!this.el.object3D.visible && !this.el.parentEl.object3D.visible) return;
@@ -80,10 +80,11 @@
                 rotation="90 0 0" 
                 position="0 0 0" 
                 scale="0.001 0.001 0.001"
-                proximity-hider="distance: 0.3"
+                proximity-hider="distance: 0.03"
                 pinch-scaler="min: 0.0005; max: 0.005"
             ></a-entity>
         </a-entity>
     </a-scene>
 </body>
 </html>
+
