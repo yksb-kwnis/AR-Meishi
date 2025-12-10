@@ -3,68 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名刺AR体験</title>
+    <title>名刺AR</title>
     <style>
+        :root {
+            --primary-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --btn-color: #6a11cb;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: "Helvetica Neue", Arial, sans-serif;
             text-align: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
-            color: #333;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 90vh; /* 画面の高さに合わせる */
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .title-area {
+            margin-bottom: 30px;
+            padding-top: 10px;
+            position: relative;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 40px;
+            margin: 0;
+            color: #4a00e0;
+            font-weight: 800;
+            letter-spacing: 1px;
+            z-index: 1;
+            line-height: 1.2;
         }
-        p {
-            margin-bottom: 15px;
+
+        /* 実質サイキックのデザイン */
+        .subtitle-impact {
+            display: block;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffeb3b;
+            
+            /* 漢字をつぶさない設定 */
+            -webkit-text-stroke: 5px #d32f2f;
+            paint-order: stroke fill;
+            
+            text-shadow: 4px 4px 0 #333;
+            
+            margin-top: 5px;
+            /* 傾きを削除（0deg） */
+            transform: rotate(0deg); 
+            
+            opacity: 0; 
+            /* 時間を 1.5s に延ばしてゆっくりに */
+            animation: pop-foreground 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: 1.0s;
+        }
+
+        @keyframes pop-foreground {
+            0% {
+                opacity: 0;
+                transform: scale(0); /* まっすぐ奥から */
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.3); /* ゆっくり手前に迫る */
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1); /* まっすぐ定位置へ */
+            }
+        }
+
+        .lead-text {
+            margin-bottom: 30px;
+            font-size: 15px;
             line-height: 1.6;
+            color: #555;
         }
-        .note {
+
+        details {
+            margin-bottom: 20px;
+            text-align: left;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #555;
+        }
+
+        summary::after {
+            content: '+';
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        details[open] summary::after {
+            transform: rotate(45deg);
+        }
+
+        .how-to-content {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            line-height: 1.4;
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .step-text {
+            line-height: 1.5;
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px dashed #ddd;
+            margin: 15px 0;
+        }
+
+        .terms-box {
             font-size: 12px;
             color: #666;
             background: #fff;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
-            margin: 20px 0;
-            border: 1px solid #ddd;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+            text-align: left;
         }
-        /* スタートボタンのデザイン */
+
+        .terms-box h2 {
+            font-size: 13px;
+            margin: 15px 0 5px 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+        }
+        
+        .terms-box h2:first-child {
+            margin-top: 0;
+        }
+
+        .terms-list {
+            padding-left: 1.2em;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .terms-list li {
+            margin-bottom: 8px;
+        }
+
+        .alert-text {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
         .start-btn {
-            display: inline-block;
-            background-color: #007BFF; /* 青色 */
+            display: block;
+            width: 100%;
+            background: var(--primary-bg);
             color: white;
-            padding: 15px 40px;
+            padding: 18px 0;
             font-size: 18px;
             font-weight: bold;
             text-decoration: none;
             border-radius: 50px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.1s;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+            transition: transform 0.2s;
+            box-sizing: border-box;
         }
+
         .start-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.98);
+        }
+
+        .footer-note {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #999;
         }
     </style>
 </head>
 <body>
 
-    <h1>AR名刺へようこそ</h1>
+    <div class="container">
+        
+        <div class="title-area">
+            <h1>名刺AR</h1>
+            <div class="subtitle-impact">
+                \ 実質サイキック🥄 /
+            </div>
+        </div>
 
-    <p>名刺にカメラをかざすと<br>3Dキャラクターが飛び出します。</p>
+        <p class="lead-text">
+            名刺にカメラをかざすと<br>
+            『なんと　可愛い　美少女がいるではないか』♪
+        </p>
 
-    <div class="note">
-        <strong>⚠️ 安全性について</strong><br>
-        カメラの映像はお使いの端末内で処理されます。<br>
-        映像がサーバーに送信・保存されることはありません。<br>
-        安心してお楽しみください。
+        <details>
+            <summary>遊び方を確認する</summary>
+            <div class="how-to-content">
+                <div class="step">
+                    <span class="step-icon">1️⃣</span>
+                    <div class="step-text">下のボタンでカメラを許可</div>
+                </div>
+                <div class="step">
+                    <span class="step-icon">2️⃣</span>
+                    <div class="step-text">名刺全体を映す</div>
+                </div>
+                <div class="step">
+                    <span class="step-icon">3️⃣</span>
+                    <div class="step-text">キャラが出現！</div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="step">
+                    <span class="step-icon">🤏</span>
+                    <div class="step-text">
+                        <strong>大きさ変更：</strong><br>
+                        画面をピンチ（2本指で操作）すると、キャラのサイズを変えられます。
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-icon">🔚</span>
+                    <div class="step-text">
+                        <strong>遊び終わったら：</strong><br>
+                        必ず<span class="alert-text">タブを閉じて</span>終了してください。
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <div class="terms-box">
+            <h2>⚠️ コンテンツに関するご注意</h2>
+            <ul class="terms-list">
+                <li><strong>二次創作作品です：</strong><br>
+                    本コンテンツは個人の趣味で制作された非公式のファン作品（二次創作）です。公式企業様とは一切関係ありません。</li>
+                <li><strong>3Dモデルの表現について：</strong><br>
+                    自作の3Dモデル（VRoid製）を使用しています。素人制作のため、表示が崩れたり、挙動に違和感を感じたりする場合があります。苦手な方はご注意ください。</li>
+            </ul>
+
+            <h2>🔒 システム・安全性</h2>
+            <ul class="terms-list">
+                <li><strong>プライバシー保護：</strong><br>
+                    カメラ映像は端末内でのみ処理されます。外部サーバーへの送信・保存は行われません。</li>
+            </ul>
+        </div>
+
+        <a href="ar.html" class="start-btn">体験を始める</a>
+        
+        <p class="footer-note">
+            ※ 上記の注意事項に同意の上、ご利用ください
+        </p>
     </div>
-
-    <a href="ar.html" class="start-btn">カメラを起動する</a>
 
 </body>
 </html>
