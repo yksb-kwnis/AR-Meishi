@@ -60,36 +60,20 @@
             font-size: 28px;
             font-weight: 900;
             color: #ffeb3b;
-            
-            /* 漢字をつぶさない設定 */
             -webkit-text-stroke: 5px #d32f2f;
             paint-order: stroke fill;
-            
             text-shadow: 4px 4px 0 #333;
-            
             margin-top: 5px;
-            /* 傾きを削除（0deg） */
             transform: rotate(0deg); 
-            
             opacity: 0; 
-            /* 時間を 1.5s に延ばしてゆっくりに */
             animation: pop-foreground 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             animation-delay: 1.0s;
         }
 
         @keyframes pop-foreground {
-            0% {
-                opacity: 0;
-                transform: scale(0); /* まっすぐ奥から */
-            }
-            70% {
-                opacity: 1;
-                transform: scale(1.3); /* ゆっくり手前に迫る */
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1); /* まっすぐ定位置へ */
-            }
+            0% { opacity: 0; transform: scale(0); }
+            70% { opacity: 1; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         .lead-text {
@@ -99,7 +83,8 @@
             color: #555;
         }
 
-        details {
+        /* --- メインの遊び方トグル --- */
+        .main-details {
             margin-bottom: 20px;
             text-align: left;
             background: #fff;
@@ -108,7 +93,7 @@
             overflow: hidden;
         }
 
-        summary {
+        .main-details summary {
             padding: 15px;
             font-weight: bold;
             cursor: pointer;
@@ -119,13 +104,13 @@
             color: #555;
         }
 
-        summary::after {
+        .main-details summary::after {
             content: '+';
             font-size: 20px;
             transition: transform 0.3s;
         }
 
-        details[open] summary::after {
+        .main-details[open] summary::after {
             transform: rotate(45deg);
         }
 
@@ -141,9 +126,7 @@
             margin-bottom: 12px;
         }
 
-        .step:last-child {
-            margin-bottom: 0;
-        }
+        .step:last-child { margin-bottom: 0; }
 
         .step-icon {
             font-size: 20px;
@@ -153,9 +136,7 @@
             text-align: center;
         }
 
-        .step-text {
-            line-height: 1.5;
-        }
+        .step-text { line-height: 1.5; }
 
         .divider {
             border: 0;
@@ -182,24 +163,10 @@
             padding-bottom: 3px;
         }
         
-        .terms-box h2:first-child {
-            margin-top: 0;
-        }
-
-        .terms-list {
-            padding-left: 1.2em;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .terms-list li {
-            margin-bottom: 8px;
-        }
-
-        .alert-text {
-            color: #d9534f;
-            font-weight: bold;
-        }
+        .terms-box h2:first-child { margin-top: 0; }
+        .terms-list { padding-left: 1.2em; margin: 0; line-height: 1.5; }
+        .terms-list li { margin-bottom: 8px; }
+        .alert-text { color: #d9534f; font-weight: bold; }
 
         .start-btn {
             display: block;
@@ -216,15 +183,72 @@
             box-sizing: border-box;
         }
 
-        .start-btn:active {
-            transform: scale(0.98);
-        }
+        .start-btn:active { transform: scale(0.98); }
 
         .footer-note {
             margin-top: 15px;
+            margin-bottom: 5px;
             font-size: 11px;
             color: #999;
         }
+
+        /* --- ▼▼▼ 作者コメントのCSS（修正版） ▼▼▼ --- */
+        .author-comment {
+            /* 文字サイズと色を普通に戻す */
+            font-size: 14px; 
+            color: #333;
+            
+            margin-top: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            width: 100%; /* 幅いっぱい使う */
+        }
+
+        .author-comment summary {
+            cursor: pointer;
+            list-style: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            
+            /* リンクっぽさより「見出し」っぽさを出す */
+            color: #555;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: rgba(0,0,0,0.03); /* 薄い背景をつけてボタンっぽく */
+            transition: background-color 0.2s;
+        }
+        
+        .author-comment summary:hover {
+            background-color: rgba(0,0,0,0.08);
+        }
+
+        .author-comment summary::after {
+            content: '▼';
+            font-size: 10px;
+            margin-left: 8px;
+            transition: transform 0.3s;
+            display: inline-block;
+            color: #888;
+        }
+
+        .author-comment[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .author-content {
+            margin-top: 15px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: left;
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* 少しリッチに */
+        }
+        /* --- ▲▲▲ 修正ここまで ▲▲▲ --- */
+
     </style>
 </head>
 <body>
@@ -243,7 +267,7 @@
             『なんと　可愛い　美少女がいるではないか！♪』
         </p>
 
-        <details>
+        <details class="main-details">
             <summary>遊び方を確認する</summary>
             <div class="how-to-content">
                 <div class="step">
@@ -293,7 +317,7 @@
                 <li><strong>3Dモデルの表現について：</strong><br>
                     自作の3Dモデル（VRoid製）を使用しています。素人制作のため、表示が崩れたり、挙動に違和感を感じたりする場合があります。苦手な方はご注意ください。</li>
                 <li><strong>プライバシーについて：</strong><br>
-                    カメラ映像は端末内でのみ処理されます。外部サーバーへの送信・保存は行われません。</li>
+                    本アプリでは、カメラ映像を外部サーバーへ送信・保存する機能は実装していません。映像処理はお使いの端末内のブラウザ上で実行されます。</li>
                 <li><strong>終了時のお願い：</strong><br>
                     お手数ですが、遊び終わったら<span class="alert-text">必ずブラウザのタブを閉じて</span>終了してください。カメラが後ろで動き続けることがあります。</li>
             </ul>
@@ -304,8 +328,43 @@
         <p class="footer-note">
             ※ 上記の注意事項に同意の上、ご利用ください
         </p>
-    </div>
+
+        <details class="author-comment">
+            <summary>作者のコメント・雑談</summary>
+            <div class="author-content">
+                こんにちは。「かわにいし」と申します。<br>
+                <br>
+                名刺交換ありがとうございました！<br>
+                素人が作ったものですがちょっと頑張ってARを作ってみました。<br>
+                といっても、かなりAIに教えてもらってですが…<br>
+                <br>
+                私の名刺やこのシステムについて、画像とかをネット上にあげるのは別に問題ないんじゃないかと思います。<br>
+                すみません、本音を言うとむしろあげてもらえたら嬉しいです……<br>
+                システムについても「俺が考えたシステムだぁぁ」と主張したりしません。ただのWebARです。<br>
+                おそらくもうすでに誰かやっていると思います。<br>
+                このシステムのコードなどを参考に皆さんもぜひ名刺にARを付けてみてください！<br>
+                <br>
+                とにかく、こんなの作ってなんか元気にやってるPもいるなと思っていただけたら何よりです。<br>
+                MOIW2025楽しみですね！！！！ or 楽しかったですね！！！！　うちの担当見た！？　やばない！！<br>
+                <br>
+                最後に、デレマスの「<strong>大石泉</strong>」と「<strong>堀裕子</strong>」をぜひともよろしくお願いいたします！<br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                大石泉すき
+            </div>
+        </details>
+        </div>
 
 </body>
 </html>
-
