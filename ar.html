@@ -5,43 +5,34 @@
     <title>WebAR Business Card</title>
 
     <style>
-        /* MindARのVRボタンを非表示 */
-        .a-enter-vr {
-            display: none !important;
-        }
+        /* MindARのデフォルトUIを非表示にする（自前で案内を出すため） */
+        .a-enter-vr { display: none !important; }
 
         /* 案内UIのコンテナ */
         #guide-overlay {
             position: fixed;
             left: 0;
             width: 100%;
-            bottom: 15%; /* 真ん中より少し下（下から15%の位置） */
-            
-            /* 全体背景（暗転）は削除し、透明に */
-            background: transparent; 
-            
+            bottom: 15%; /* 画面下部 */
+            background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 999;
-            pointer-events: none; /* タップ操作を透過 */
-            transition: opacity 0.3s;
+            pointer-events: none;
+            transition: opacity 0.5s; /* ふわっと消えるアニメーション */
         }
 
         /* 案内テキストのデザイン */
         .guide-text {
-            /* 文字が読みやすいように、文字自体の背景だけ薄く白を入れる */
             background: rgba(255, 255, 255, 0.7); 
             padding: 10px 20px;
             border-radius: 20px;
-            
             font-family: sans-serif;
             font-weight: bold;
             font-size: 16px;
             color: #333;
             text-align: center;
-            
-            /* 軽い影をつけて視認性を確保 */
             text-shadow: 0 1px 1px rgba(255,255,255,0.8);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -49,6 +40,7 @@
         /* 非表示用クラス */
         .hidden {
             opacity: 0;
+            pointer-events: none;
         }
     </style>
     
@@ -133,8 +125,8 @@
 </head>
 <body>
     <div id="guide-overlay">
-        <div class="guide-text">
-            名刺を映してください
+        <div class="guide-text" id="guide-message">
+            カメラが起動するまで<br>少々お待ちください
         </div>
     </div>
 
@@ -179,37 +171,38 @@
     document.addEventListener("DOMContentLoaded", () => {
         const scene = document.querySelector("a-scene");
         const guideOverlay = document.getElementById("guide-overlay");
+        const guideMessage = document.getElementById("guide-message");
         
-        let visibleCount = 0;
-
-        // 表示切替関数
-        const updateGuideVisibility = () => {
-            if (visibleCount > 0) {
-                // スキャン成功（ターゲットが見えている）時は消す
-                guideOverlay.classList.add("hidden");
-            } else {
-                // スキャン中（ターゲットが見えていない）時は表示
-                guideOverlay.classList.remove("hidden");
-            }
-        };
+        // 「一度でもスキャンされたか」のフラグ
+        let hasBeenScanned = false;
 
         scene.addEventListener("loaded", () => {
             const mindarSystem = scene.systems["mindar-image"];
-            const targets = document.querySelectorAll('.target-marker');
-
-            targets.forEach(target => {
-                target.addEventListener("targetFound", () => {
-                    visibleCount++;
-                    updateGuideVisibility();
-                });
-                target.addEventListener("targetLost", () => {
-                    visibleCount--;
-                    if(visibleCount < 0) visibleCount = 0;
-                    updateGuideVisibility();
-                });
+            
+            // 1. MindARの準備完了イベント (カメラ起動後)
+            scene.addEventListener("arReady", () => {
+                // まだ一度もスキャンされていなければ、メッセージを変更
+                if (!hasBeenScanned) {
+                    guideMessage.innerText = "名刺を映してください";
+                }
             });
 
-            // ページ非表示時のカメラ停止制御
+            // 2. ターゲット検出イベント
+            const targets = document.querySelectorAll('.target-marker');
+            targets.forEach(target => {
+                target.addEventListener("targetFound", () => {
+                    // ターゲットが見つかったらフラグを立てて、案内を永遠に消す
+                    if (!hasBeenScanned) {
+                        hasBeenScanned = true;
+                        guideOverlay.classList.add("hidden");
+                    }
+                });
+                
+                // ※ targetLost は今回「何もしない」
+                // (一度消えたら再表示しないため)
+            });
+
+            // ページ非アクティブ制御
             document.addEventListener("visibilitychange", () => {
                 if (document.hidden) {
                     mindarSystem.stop(); 
