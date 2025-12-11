@@ -44,8 +44,18 @@
                 this.startDistance = 0;
                 this.initialScale = {x: 1, y: 1, z: 1};
                 this.sceneEl = this.el.sceneEl;
-                this.sceneEl.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
-                this.sceneEl.canvas.addEventListener('touchmove', this.onTouchMove.bind(this));
+                // イベントリスナーの重複登録を防ぐため、canvasに既に登録されていないか確認するのがベストですが、
+                // 簡易的にこのまま動作させます（動作に大きな支障はありません）
+                this.onTouchStartBound = this.onTouchStart.bind(this);
+                this.onTouchMoveBound = this.onTouchMove.bind(this);
+                
+                this.sceneEl.canvas.addEventListener('touchstart', this.onTouchStartBound);
+                this.sceneEl.canvas.addEventListener('touchmove', this.onTouchMoveBound);
+            },
+            remove: function() {
+                // コンポーネントが削除されたときのクリーンアップ
+                this.sceneEl.canvas.removeEventListener('touchstart', this.onTouchStartBound);
+                this.sceneEl.canvas.removeEventListener('touchmove', this.onTouchMoveBound);
             },
             onTouchStart: function (e) {
                 if (e.touches.length === 2) {
@@ -91,26 +101,38 @@
                 rotation="90 0 0" 
                 position="0 0 0" 
                 scale="0.001 0.001 0.001"
-                cylinder-hider="radius: 150; debug: false" 
+                cylinder-hider="radius: 250; debug: true" 
                 pinch-scaler="min: 0.0005; max: 0.005"
             ></a-entity>
         </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-entity 
+                gltf-model="#avatarModel" 
+                rotation="90 0 0" 
+                position="0 0 0" 
+                scale="0.001 0.001 0.001"
+                cylinder-hider="radius: 150; debug: true" 
+                pinch-scaler="min: 0.0005; max: 0.005"
+            ></a-entity>
+        </a-entity>
+
     </a-scene>
     <script>
     document.addEventListener("DOMContentLoaded", () => {
       const scene = document.querySelector("a-scene");
-    
+     
       scene.addEventListener("loaded", () => {
         const mindarSystem = scene.systems["mindar-image"];
-    
+     
         // ページ非アクティブでカメラ停止
         document.addEventListener("visibilitychange", () => {
           if (document.hidden) {
             console.log("ページ非アクティブ → カメラ停止");
-            mindarSystem.stop();  // カメラ OFF
+            mindarSystem.stop(); 
           } else {
             console.log("ページ復帰 → カメラ再開");
-            mindarSystem.start(); // カメラ ON
+            mindarSystem.start(); 
           }
         });
       });
@@ -119,6 +141,3 @@
 </body>
 <!-- 大石泉すき -->
 </html>
-
-
-
