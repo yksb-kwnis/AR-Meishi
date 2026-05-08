@@ -131,7 +131,7 @@
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targetsMeishi.mind; filterMinCF: 0.0003; filterBeta: 0.004;" 
+        mindar-image="imageTargetSrc: ./targets_deremyu.mind; filterMinCF: 0.0003; filterBeta: 0.004;" 
         color-space="sRGB" 
         renderer="colorManagement: true, physicallyCorrectLights" 
         vr-mode-ui="enabled: false" 
@@ -155,6 +155,17 @@
         </a-entity>
 
         <a-entity mindar-image-target="targetIndex: 1" class="target-marker">
+            <a-entity 
+                gltf-model="#avatarModel" 
+                rotation="90 0 0" 
+                position="0 0 0" 
+                scale="0.001 0.001 0.001"
+                elliptical-hider="radiusX: 550; radiusZ: 250; debug: false" 
+                pinch-scaler="min: 0.00005; max: 0.005"
+            ></a-entity>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 2" class="target-marker">
             <a-entity 
                 gltf-model="#avatarModel" 
                 rotation="90 0 0" 
